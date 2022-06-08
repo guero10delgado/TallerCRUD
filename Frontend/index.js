@@ -1,10 +1,12 @@
+
+const HOST = 'http://localhost:8084/TallerJS/API';
 /*
    function registrar(p1, p2){
       
    }
 */
 
-const registrar = () => {
+const registrar = async () => {
    
    let nombre = document.getElementById('inputName').value;
    let apellido = document.getElementById('inputLastname').value;
@@ -32,7 +34,31 @@ const registrar = () => {
       return;
    }
 
-   
+   let response = await guardar(HOST, 'POST', data);
+
+   if(response.status === 200){
+      showMessage('Genial!!', response.msj, 'success');
+      clear();
+   }
+   else{
+      showMessage('Error', response.msj, 'error');
+   }
+}
+
+const guardar = async (url, method, data) => {
+
+   let response = await fetch(url, {
+      method: method,
+      body: JSON.stringify(data) 
+   });
+
+   if(!response.ok){
+      throw new Error(`HTTP error: ${ response.status }`);
+      //throw new Error('HTTP error: ' + response.status );
+   }
+
+   let resp = await response.json();
+   return resp;
 
 }
 
@@ -46,4 +72,16 @@ const validation = (nombre, apellido, email, passw, direccion, ciudad, estado, c
 
 const showMessage = (title, text, icon) => {
    Swal.fire({ icon, title, text });
+}
+
+const clear = () => {
+
+   document.getElementById('inputName').value = '';
+   document.getElementById('inputLastname').value = '';
+   document.getElementById('inputEmail').value = '';
+   document.getElementById('inputPassword').value = '';
+   document.getElementById('inputAddress').value = '';
+   document.getElementById('inputCity').value = '';
+   document.getElementById('inputState').value = '';
+   document.getElementById('inputZip').value = '';
 }
