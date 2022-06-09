@@ -43,6 +43,13 @@ const registrar = async () => {
    else{
       showMessage('Error', response.msj, 'error');
    }
+
+   /*
+      guardar2(HOST, 'POST', data).then( response => {
+         console.log(response);
+      });
+   */
+
 }
 
 const guardar = async (url, method, data) => {
@@ -60,6 +67,16 @@ const guardar = async (url, method, data) => {
    let resp = await response.json();
    return resp;
 
+}
+
+const guardar2 =  (url, method, data) => {
+
+   return fetch(url, {
+      method: method,
+      body: JSON.stringify(data) 
+   }).then(response => {
+      return response.json();
+   });
 }
 
 const validation = (nombre, apellido, email, passw, direccion, ciudad, estado, codigoPostal) => {
