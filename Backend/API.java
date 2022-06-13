@@ -87,18 +87,19 @@ public class API extends HttpServlet {
         response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
         response.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
 
-        /*
         ConnectionDataBase conx = new ConnectionDataBase(
             ConnectionDataBase.TipoBaseDatos.Postgresql, 
             "localhost", 
-            "", 
-            "", 
-            "", 
+            "postgres", 
+            "12345", 
+            "Taller", 
+            "5432",
             ConnectionDataBase.AutoCommit.False
         );
-        */
         
         try(PrintWriter out = response.getWriter()){
+            
+            JSONObject msjs = new JSONObject();
             
             try{
                 
@@ -118,11 +119,45 @@ public class API extends HttpServlet {
                 String Estado = jObj.get("estado").toString();
                 String CP = jObj.get("codigoPostal").toString();
                 
-                System.out.println(Nombre);
+                conx.OpenConnection();
+                
+                if(conx.getConexion()){
+                    
+                    String query = String.format(
+                            "INSERT INTO TCLIENTES (nombre, apellido, email, passw, direccion, ciudad, estado, cp) " + 
+                            "values ('%s','%s','%s','%s','%s','%s','%s','%s')", 
+                            Nombre, Apellido, Email, Passw, Direccion, Ciudad, Estado, CP);
+                    
+                    String res = conx.executeQuery(query);
+                    
+                    if(!res.equals("1"))
+                        throw new Exception(res);
+                    
+                    conx.Commit();
+                    
+                    msjs.put("status", 200);
+                    msjs.put("msj", "Se creó correctamente!!!");
+                    out.println(msjs.toString());
+                }
+                else
+                    throw new Exception("La base de datos no se abrio...");
+                
+                
+                conx.CloseConnection();
                 
             }catch(Exception ex){
                 
+                if(conx.getConexion())
+                    conx.Rollback();
+                
+                msjs.put("status", 400);
+                msjs.put("msj", ex.getMessage());
+                out.println(msjs.toString());
+                
             }
+            
+        }catch(Exception ex){
+            
         }
         
         
