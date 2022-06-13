@@ -1,0 +1,53 @@
+// Crear la tabla TCLIENTES
+
+CREATE TABLE public.TCLIENTES (
+	id serial, 
+	nombre VARCHAR,
+	apellido VARCHAR,
+	email VARCHAR,
+	passw VARCHAR,
+	direccion VARCHAR,
+	ciudad VARCHAR,
+	estado VARCHAR,
+	cp INTEGER,
+	primary key (id)
+);
+
+
+
+// Crear la tabla TCLIENTES_LOG
+
+CREATE TABLE public.TCLIENTES_LOG (
+	nombre VARCHAR,
+	apellido VARCHAR,
+	email VARCHAR,
+	fecha_creacion date,
+	hora_creacion time
+);
+
+
+
+//Crear funcion FN_clientes_log
+
+CREATE FUNCTION FN_clientes_log()
+	RETURNS trigger AS
+$$
+BEGIN
+	
+	insert into tclientes_log (nombre, apellido, email, fecha_creacion, hora_creacion) 
+	values (new.nombre, new.apellido, new.email, now(), now());
+	RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+
+
+//Crear Trigger TR_Clientes
+
+CREATE TRIGGER TR_Clientes 
+after insert on public.tclientes 
+for each row
+execute procedure public.FN_clientes_log();
+
+
